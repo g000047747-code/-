@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="時間割"><meta name="theme-color" content="#0b1020">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png">
+<title>時間割</title>
+<style>
+:root{--gb:rgba(255,255,255,.3);--tx:#f6f8ff;--sub:rgba(235,240,255,.68);--ac:#8fd0ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:-apple-system,"Hiragino Sans","Noto Sans JP",system-ui,sans-serif;color:var(--tx);background:#0b1020;min-height:100vh;padding:env(safe-area-inset-top) 0 0}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.bg i{position:absolute;border-radius:50%;filter:blur(64px);opacity:.8;animation:fl 20s ease-in-out infinite alternate}
+.bg i:nth-child(1){width:60vmax;height:60vmax;left:-15vmax;top:-12vmax;background:#3a6bff}
+.bg i:nth-child(2){width:50vmax;height:50vmax;right:-18vmax;top:28vh;background:#b04bff;animation-delay:-7s}
+.bg i:nth-child(3){width:46vmax;height:46vmax;left:8vw;bottom:-18vmax;background:#00bfb3;animation-delay:-13s}
+@keyframes fl{to{transform:translate(8vmax,-6vmax) scale(1.15)}}
+.glass{background:linear-gradient(135deg,rgba(255,255,255,.24),rgba(255,255,255,.06));-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);border:1px solid var(--gb);border-radius:28px;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(255,255,255,.1),0 12px 40px rgba(0,0,0,.3)}
+main{max-width:560px;margin:0 auto;padding:14px 16px calc(110px + env(safe-area-inset-bottom))}
+header{text-align:center;padding:10px 0 14px}
+.clk{font-size:54px;font-weight:200;letter-spacing:.02em;font-variant-numeric:tabular-nums;line-height:1}
+.dt{color:var(--sub);margin-top:6px;font-size:15px}
+.chips{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:12px;flex-wrap:wrap}
+.chip,.btn{font:inherit;color:var(--tx);border:1px solid var(--gb);background:rgba(255,255,255,.12);border-radius:999px;padding:8px 16px;font-size:14px;cursor:pointer;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);transition:.25s}
+.chip.on{background:linear-gradient(135deg,rgba(143,208,255,.55),rgba(190,140,255,.5));box-shadow:0 0 18px rgba(143,208,255,.45),inset 0 1px 0 rgba(255,255,255,.6)}
+.btn:active,.chip:active{transform:scale(.95)}
+.lab{font-size:13px;color:var(--sub)}
+.view{display:none}.view.on{display:block;animation:vi .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes vi{from{opacity:0;transform:translateY(10px)}}
+.card{padding:22px;margin-bottom:14px;overflow:hidden}
+.card h3{margin:0 0 12px;font-size:16px;font-weight:600}
+.lb{font-size:14px;color:var(--ac)}
+.mn{font-size:38px;font-weight:700;margin:6px 0 4px;line-height:1.2}
+.sm .mn{font-size:28px}
+.tm{color:var(--sub);font-size:16px;font-variant-numeric:tabular-nums;min-height:22px}
+.rl{margin-top:14px;font-size:14px;color:var(--sub);min-height:20px}.cd{font-size:46px;font-weight:300;font-variant-numeric:tabular-nums;line-height:1.1;min-height:50px;text-shadow:0 0 22px rgba(143,208,255,.55)}
+.rm{margin-top:10px;font-size:16px;font-variant-numeric:tabular-nums;min-height:22px}
+.bar{height:8px;border-radius:9px;background:rgba(255,255,255,.14);margin-top:14px;overflow:hidden}
+.bar b{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#8fd0ff,#c79bff);box-shadow:0 0 12px #8fd0ff;transition:width 1s linear}
+.sm{opacity:.92}
+table{width:100%;border-collapse:separate;border-spacing:4px;table-layout:fixed}
+th,td{text-align:center;font-size:12px;padding:8px 2px;border-radius:12px;background:rgba(255,255,255,.07);word-break:break-all;line-height:1.3;height:52px}
+th{font-weight:600;height:auto}th small{display:block;font-weight:400;color:var(--sub);font-size:10px}
+th.pn{width:44px}th.td{background:rgba(143,208,255,.3)}
+td.cur{background:linear-gradient(135deg,rgba(143,208,255,.6),rgba(190,140,255,.55));box-shadow:0 0 16px rgba(143,208,255,.6);font-weight:700}
+.note{font-size:12px;color:var(--sub);line-height:1.6;margin:8px 2px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fld span{display:block;font-size:12px;color:var(--sub);margin-bottom:4px}
+input,select{width:100%;font:inherit;font-size:16px;color:var(--tx);background:rgba(255,255,255,.12);border:1px solid var(--gb);border-radius:12px;padding:9px 10px;-webkit-appearance:none;appearance:none;min-width:0}
+select{width:auto}
+.sw{position:relative;width:52px;height:30px;flex:none}
+.sw input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;z-index:2}
+.sw i{position:absolute;inset:0;border-radius:99px;background:rgba(255,255,255,.2);border:1px solid var(--gb);transition:.3s}
+.sw i:after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.3);transition:.3s}
+.sw input:checked+i{background:#34d399}.sw input:checked+i:after{transform:translateX(22px)}
+.sr{display:grid;grid-template-columns:1fr 84px 84px 40px 30px;gap:6px;align-items:center;margin:6px 0}
+.sr input{padding:8px 6px;font-size:14px}.sr .sw{transform:scale(.8);transform-origin:left}
+.sr button{background:none;border:0;color:#ff9aa8;font-size:18px}
+.tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));display:flex;gap:4px;padding:6px;border-radius:999px;z-index:5}
+.tabs button{font:inherit;color:var(--sub);background:none;border:0;padding:11px 24px;border-radius:999px;font-size:15px;transition:.3s}
+.tabs button.on{color:#fff;background:rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+#toast{position:fixed;left:16px;right:16px;top:calc(10px + env(safe-area-inset-top));max-width:520px;margin:0 auto;padding:14px 18px;border-radius:22px;z-index:9;font-size:14px;line-height:1.5;transform:translateY(-140%);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+#toast.show{transform:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div class="bg"><i></i><i></i><i></i></div>
+<div id="toast" class="glass"></div>
+<main>
+<header><div class="clk" id="clk"></div><div class="dt" id="dt"></div>
+<div class="chips"><button class="chip" id="bTok">特進</button><button class="chip" id="bTan">短縮</button><span class="lab" id="mlab"></span></div></header>
+
+<section class="view on" id="v-now">
+<div class="glass card" id="cNow"><div id="nIn"><div class="lb" id="nL"></div><div class="mn" id="nM"></div><div class="tm" id="nT"></div><div class="bar"><b id="bar"></b></div><div class="rl" id="nRl"></div><div class="cd" id="nR"></div></div></div>
+<div class="glass card sm"><div id="xIn"><div class="lb" id="xL"></div><div class="mn" id="xM"></div><div class="tm" id="xT"></div><div class="rm" id="xR"></div></div></div>
+</section>
+
+<section class="view" id="v-all"><div class="glass card" id="grid"></div><div class="note" id="spNote"></div></section>
+
+<section class="view" id="v-set">
+<div class="glass card"><h3>通知</h3>
+<p class="note" id="pst"></p>
+<div class="row"><button class="btn" id="bPerm">通知を許可する</button><button class="btn" id="bTest">テスト通知</button></div>
+<label class="row">通知を使う<span class="sw"><input type="checkbox" id="nOn"><i></i></span></label>
+<label class="row">開始前の予告<select id="lead"><option value="0">なし</option><option value="1">1分前</option><option value="3">3分前</option><option value="5">5分前</option></select></label>
+<p class="note">休み時間に入ると「次の教科は〇〇です」と知らせます。iPhoneはSafariの共有メニューから「ホーム画面に追加」して、そのアイコンから開いた状態で許可してください（iOS 16.4以降）。アプリを閉じている間は届かないことがあります。</p></div>
+<div class="glass card"><h3>短縮授業の時程</h3><div class="g2" id="tanG"></div><p class="note">ヘッダーの「短縮」ボタンで通常と切り替えます。</p></div>
+<div class="glass card"><h3>特別時間割（指定した日だけ）</h3><div class="g2" id="spG"></div>
+<div class="row"><button class="btn" id="sGen">時刻を自動作成</button></div>
+<div id="rows"></div>
+<div class="row"><button class="btn" id="sAdd">行を追加</button><button class="btn" id="sSave">この日に設定</button><button class="btn" id="sClr">解除</button></div>
+<p class="note">各行：教科 / 開始 / 終了 / 通知。設定した日が過ぎると自動で通常に戻ります。</p></div>
+</section>
+</main>
+<nav class="glass tabs"><button class="on" data-v="now">いま</button><button data-v="all">全体</button><button data-v="set">設定</button></nav>
+<script>
+const $=s=>document.querySelector(s),pd=n=>String(n).padStart(2,'0');
+const DAYS='日月火水木金土';
+const TT={1:['工業情報数理','数学Ⅰ','音楽Ⅰ','音楽Ⅰ','総探','LHR'],2:['工業技術基礎','工業技術基礎','工業技術基礎','機械工作','数学Ⅰ','言語文化'],3:['地理総合','体育','生産技術','英語CⅠ','機械工作','数学Ⅰ'],4:['体育','生産技術','英語CⅠ','科学と人間生活','製図','製図'],5:['科学と人間生活','保健','地理総合','言語文化','工業情報数理','英語CⅠ']};
+const TM={n:'8:50-9:40,9:50-10:40,10:50-11:40,11:50-12:40,13:25-14:15,14:25-15:15',s:'8:50-9:35,9:45-10:30,10:40-11:25,11:35-12:20,13:05-13:50,14:00-14:45'};
+const m=t=>{const a=t.split(':');return+a[0]*60+ +a[1]},hm=x=>Math.floor(x/60)+':'+pd(Math.round(x%60)),hh=x=>pd(Math.floor(x/60))+':'+pd(x%60);
+const dstr=d=>d.getFullYear()+'-'+pd(d.getMonth()+1)+'-'+pd(d.getDate());
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const DEF={tok:false,tan:false,notif:false,lead:0,t:{st:'08:50',len:35,brk:10,lunch:40,after:4},sp:null,fired:{}};
+let C;try{C=Object.assign({},DEF,JSON.parse(localStorage.getItem('tt2')||'{}'))}catch(e){C=Object.assign({},DEF)}
+const save=()=>{try{localStorage.setItem('tt2',JSON.stringify(C))}catch(e){}};
+if(C.sp&&C.sp.date<dstr(new Date())){C.sp=null;save()}
+
+function genTimes(n,st,len,brk,lunch,after){const r=[];let t=m(st);for(let i=1;i<=n;i++){r.push([t,t+len]);t+=len+(i===after?lunch:brk)}return r}
+const modeTimes=()=>C.tan?genTimes(6,C.t.st,+C.t.len,+C.t.brk,+C.t.lunch,+C.t.after):(C.tok?TM.s:TM.n).split(',').map(x=>x.split('-').map(m));
+function dayPeriods(d){
+ if(C.sp&&C.sp.date===dstr(d))return C.sp.rows.map((r,i)=>({n:i+1,subj:r.subj||'未設定',s:m(r.s),e:m(r.e),bell:r.bell!==false}));
+ const w=d.getDay();if(w<1||w>5)return[];const tm=modeTimes();
+ return TT[w].map((subj,i)=>({n:i+1,subj,s:tm[i][0],e:tm[i][1],bell:true}));
+}
+function state(P,x){
+ if(!P.length)return{k:'none'};
+ if(x<P[0].s)return{k:'before',next:P[0]};
+ for(let i=0;i<P.length;i++){const p=P[i],q=P[i+1];
+  if(x>=p.s&&x<p.e)return{k:'in',cur:p,next:q||null};
+  if(q&&x>=p.e&&x<q.s)return{k:'break',prev:p,next:q}}
+ return{k:'after'};
+}
+const fmtR=min=>{const s=Math.max(0,Math.ceil(min*60));return Math.floor(s/60)+'分'+pd(s%60)+'秒'};
+const rng=p=>hm(p.s)+' – '+hm(p.e);
+let lastKey='';
+function tick(){
+ const d=new Date(),x=d.getHours()*60+d.getMinutes()+d.getSeconds()/60;
+ $('#clk').textContent=pd(d.getHours())+':'+pd(d.getMinutes())+':'+pd(d.getSeconds());
+ $('#dt').textContent=`${d.getMonth()+1}月${d.getDate()}日(${DAYS[d.getDay()]})`;
+ const sp=C.sp&&C.sp.date===dstr(d);
+ $('#mlab').textContent=sp?'特別時間割':C.tan?'短縮時程':C.tok?'特進時程':'通常時程';
+ const P=dayPeriods(d),S=state(P,x);
+ const v={nL:'いま',nM:'',nT:'',nR:'',nRl:'',pr:0,xL:'つぎ',xM:'—',xT:'',xR:''};
+ if(S.k==='none'){v.nM='授業なし';v.nT='今日は時間割がありません'}
+ else if(S.k==='before'){v.nL='登校前';v.nM='まもなく開始';v.nRl=`${S.next.n}限の開始まで`;v.nR=fmtR(S.next.s-x)}
+ else if(S.k==='in'){v.nL=`${S.cur.n}限 授業中`;v.nM=S.cur.subj;v.nT=rng(S.cur);v.pr=(x-S.cur.s)/(S.cur.e-S.cur.s);v.nRl='授業が終わるまで';v.nR=fmtR(S.cur.e-x)}
+ else if(S.k==='break'){v.nL='休み時間';v.nM=S.next.s-S.prev.e>=30?'昼休み':'休憩中';v.nT=hm(S.prev.e)+' – '+hm(S.next.s);v.pr=(x-S.prev.e)/(S.next.s-S.prev.e);v.nRl='休み時間が終わるまで';v.nR=fmtR(S.next.s-x)}
+ else{v.nL='おつかれさま';v.nM='放課後';v.nT='本日の授業は終了しました'}
+ const nx=S.k==='before'||S.k==='in'||S.k==='break'?S.next:null;
+ if(nx){v.xL=`つぎ ${nx.n}限`;v.xM=nx.subj;v.xT=rng(nx);v.xR=nx.bell?'':'通知オフ'}
+ else for(let i=1;i<=8;i++){const y=new Date(d);y.setDate(d.getDate()+i);const Q=dayPeriods(y);
+  if(Q.length){v.xL=(i===1?'あした':`${y.getMonth()+1}/${y.getDate()}(${DAYS[y.getDay()]})`)+' 1限';v.xM=Q[0].subj;v.xT=rng(Q[0]);break}}
+ const key=dstr(d)+S.k+(S.cur?S.cur.n:'')+(S.prev?S.prev.n:'')+(nx?nx.n:'');
+ ['nL','nM','nT','nRl','nR','xL','xM','xT','xR'].forEach(k=>$('#'+k).textContent=v[k]);
+ $('#bar').style.width=(S.k==='in'||S.k==='break'?Math.min(100,v.pr*100):0)+'%';
+ if(key!==lastKey){
+  const o={duration:750,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'};
+  $('#nIn').animate([{opacity:0,transform:'translateY(80px) scale(.95)',filter:'blur(10px)'},{opacity:1,transform:'none',filter:'blur(0)'}],o);
+  $('#xIn').animate([{opacity:0,transform:'translateY(26px)',filter:'blur(8px)'},{opacity:1,transform:'none',filter:'blur(0)'}],Object.assign({delay:180},o));
+  lastKey=key;drawGrid();
+ }else if(d.getSeconds()%15===0)drawGrid();
+ notifyCheck(d,P,x);
+}
+function drawGrid(){
+ const d=new Date(),mon=new Date(d);mon.setDate(d.getDate()-((d.getDay()+6)%7));
+ const cols=[0,1,2,3,4].map(i=>{const y=new Date(mon);y.setDate(mon.getDate()+i);return{y,P:dayPeriods(y),t:y.toDateString()===d.toDateString()}});
+ const N=Math.max(6,...cols.map(c=>c.P.length)),gt=modeTimes(),x=d.getHours()*60+d.getMinutes();
+ let h='<table><tr><th class="pn"></th>'+cols.map(c=>`<th class="${c.t?'td':''}">${DAYS[c.y.getDay()]}<small>${c.y.getDate()}</small></th>`).join('')+'</tr>';
+ for(let i=0;i<N;i++)h+=`<tr><th class="pn">${i+1}<small>${gt[i]?hm(gt[i][0])+'<br>'+hm(gt[i][1]):''}</small></th>`+cols.map(c=>{const p=c.P[i];
+  return`<td class="${p&&c.t&&x>=p.s&&x<p.e?'cur':''}">${p?esc(p.subj):''}</td>`}).join('')+'</tr>';
+ $('#grid').innerHTML=h+'</table>';
+ $('#spNote').textContent=C.sp?`${C.sp.date} は特別時間割が設定されています（左の時刻は通常/短縮/特進の時程です）`:'';
+}
+// ---- 通知 ----
+let tt;function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),6000)}
+function fire(title,body){
+ toast(title+'　'+body);
+ if(!('Notification'in window)||Notification.permission!=='granted')return;
+ const o={body,icon:'icon-192.png',badge:'icon-192.png',tag:'tt',renotify:true,lang:'ja'};
+ const fb=()=>{try{new Notification(title,o)}catch(e){}};
+ if(navigator.serviceWorker)navigator.serviceWorker.getRegistration().then(r=>r?r.showNotification(title,o):fb()).catch(fb);else fb();
+}
+function notifyCheck(d,P,x){
+ if(!C.notif)return;const ds=dstr(d);
+ if(C.fired.d!==ds){C.fired={d:ds};save()}
+ P.forEach((p,i)=>{if(!p.bell)return;const prev=P[i-1],ev=[];
+  if(prev)ev.push(['b',prev.e,`休み時間です。次の教科は${p.subj}です`]);
+  if(+C.lead>0)ev.push(['l',p.s-C.lead,`${C.lead}分後に${p.n}限「${p.subj}」が始まります`]);
+  ev.forEach(([t,at,msg])=>{const k=t+p.n;
+   if(x>=at&&x<at+1.5&&!C.fired[k]){C.fired[k]=1;save();fire(`${p.n}限 ${p.subj}`,`${msg}（${rng(p)}）`)}})});
+}
+function permUI(){
+ const ok='Notification'in window;
+ $('#pst').textContent=ok?'通知の状態：'+({granted:'許可済み',denied:'ブロック中（端末の設定から許可してください）',default:'未許可'})[Notification.permission]:'このブラウザでは通知を使えません。iPhoneはホーム画面に追加したアイコンから開いてください。';
+ $('#nOn').checked=!!C.notif;$('#lead').value=C.lead;
+}
+$('#bPerm').onclick=async()=>{if(!('Notification'in window)){permUI();return}
+ try{const r=await Notification.requestPermission();if(r==='granted'){C.notif=true;save()}}catch(e){}permUI()};
+$('#bTest').onclick=()=>fire('テスト通知','休み時間です。次の教科は数学Ⅰです');
+$('#nOn').onchange=e=>{C.notif=e.target.checked;save();if(C.notif&&'Notification'in window&&Notification.permission==='default')$('#bPerm').click()};
+$('#lead').onchange=e=>{C.lead=+e.target.value;save()};
+// ---- モード ----
+function modeUI(){$('#bTok').classList.toggle('on',C.tok);$('#bTan').classList.toggle('on',C.tan)}
+$('#bTok').onclick=()=>{C.tok=!C.tok;save();modeUI();lastKey='';tick()};
+$('#bTan').onclick=()=>{C.tan=!C.tan;save();modeUI();lastKey='';tick()};
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.tabs button,.view').forEach(e=>e.classList.remove('on'));b.classList.add('on');$('#v-'+b.dataset.v).classList.add('on');if(b.dataset.v==='all')drawGrid()});
+// ---- 設定フォーム ----
+const F=(l,id,t,v)=>`<label class="fld"><span>${l}</span><input id="${id}" type="${t}" value="${v}"></label>`;
+const T=C.t;
+$('#tanG').innerHTML=F('1限の開始','tSt','time',T.st)+F('授業(分)','tLen','number',T.len)+F('休み(分)','tBrk','number',T.brk)+F('昼休み(分)','tLn','number',T.lunch)+F('昼休みの前の限','tAf','number',T.after);
+$('#tanG').oninput=()=>{C.t={st:$('#tSt').value||'08:50',len:+$('#tLen').value||35,brk:+$('#tBrk').value||0,lunch:+$('#tLn').value||0,after:+$('#tAf').value||4};save();lastKey=''};
+let D=C.sp?JSON.parse(JSON.stringify(C.sp)):{date:dstr(new Date()),rows:[]};
+$('#spG').innerHTML=F('日付','sDate','date',D.date)+F('何限まで','sN','number',D.rows.length||6)+F('1限の開始','sSt','time','08:50')+F('授業(分)','sLen','number',50)+F('休み(分)','sBrk','number',10)+F('昼休み(分)','sLn','number',45)+F('昼休みの前の限','sAf','number',4);
+function rowsUI(){
+ $('#rows').innerHTML=D.rows.map((r,i)=>`<div class="sr" data-i="${i}"><input data-f="subj" value="${esc(r.subj)}" placeholder="${i+1}限の教科"><input data-f="s" type="time" value="${r.s}"><input data-f="e" type="time" value="${r.e}"><span class="sw"><input data-f="bell" type="checkbox" ${r.bell!==false?'checked':''}><i></i></span><button data-del="${i}">✕</button></div>`).join('');
+}
+$('#rows').oninput=$('#rows').onchange=e=>{const el=e.target,r=el.closest('.sr');if(!r||!el.dataset.f)return;D.rows[+r.dataset.i][el.dataset.f]=el.type==='checkbox'?el.checked:el.value};
+$('#rows').onclick=e=>{const i=e.target.dataset.del;if(i!==undefined){D.rows.splice(+i,1);rowsUI()}};
+$('#sGen').onclick=()=>{const g=id=>$(id).value,n=Math.min(12,Math.max(1,+g('#sN')||6));
+ const t=genTimes(n,g('#sSt')||'08:50',+g('#sLen')||50,+g('#sBrk')||0,+g('#sLn')||0,+g('#sAf')||0),w=new Date(g('#sDate')+'T00:00').getDay();
+ D.date=g('#sDate');D.rows=t.map((x,i)=>({subj:(D.rows[i]||{}).subj||(TT[w]||[])[i]||'',s:hh(x[0]),e:hh(x[1]),bell:(D.rows[i]||{}).bell!==false}));rowsUI()};
+$('#sAdd').onclick=()=>{const l=D.rows[D.rows.length-1],s=l?m(l.e)+10:530;D.rows.push({subj:'',s:hh(s),e:hh(s+50),bell:true});rowsUI()};
+$('#sSave').onclick=()=>{D.date=$('#sDate').value;if(!D.date||!D.rows.length){toast('日付と時間割の行を入力してください');return}
+ C.sp=JSON.parse(JSON.stringify(D));save();lastKey='';tick();toast(`${D.date} の特別時間割を設定しました`)};
+$('#sClr').onclick=()=>{C.sp=null;save();lastKey='';tick();toast('特別時間割を解除しました')};
+// ---- 起動 ----
+modeUI();permUI();rowsUI();tick();setInterval(tick,1000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick()});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
